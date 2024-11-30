@@ -1,38 +1,74 @@
-.App {
-  text-align: center;
+body {
+ background-color: #2a2a2a;
+ color: #fff;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.env {
+ background-color: #1e9874;
+ transform: scale(0.995, 0.85);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.cash {
+ background-color: #7ab678;
+ transform: scale(0.995, 0.85);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.pixelify-sans-head {
+ font-family: "Pixelify Sans", sans-serif;
+ font-optical-sizing: auto;
+ font-weight: 700;
+ font-style: normal;
+ font-size: 4rem;
+ text-align: center;
 }
 
-.App-link {
-  color: #61dafb;
+.p .App {
+ text-align: center;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.container {
+ max-width: 800px;
+}
+
+.button {
+ margin-right: 10px;
+ margin-top: 10px;
+ margin-bottom: 10px;
+ background-color: #c3e7b8;
+ color: #323232;
+ padding: 10px 20px;
+ border-radius: 25px;
+ transition: background-color 0.2s ease, transform 0.2s ease;
+ border: none;
+ font-weight: bold;
+}
+
+.button:hover {
+ background-color: #b6e8a7;
+ color: #323232;
+ transform: scale(1.02);
+}
+.button:active {
+ background-color: #b6e8a7;
+ color: #323232;
+ transform: scale(1.02);
+}
+.progress {
+ height: 30px;
+ max-width: 100%;
+ border-radius: 15px;
+ z-index: 0;
+}
+
+.progress-bar {
+ font-size: 1.25rem;
+ line-height: 30px;
+ border-radius: 15px;
+ z-index: 0;
+}
+.down {
+ z-index: 20000;
+}
+.color {
+ color: #7ab678;
 }
