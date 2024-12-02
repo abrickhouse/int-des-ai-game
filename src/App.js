@@ -1,12 +1,20 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDollarSign, faSeedling } from "@fortawesome/free-solid-svg-icons";
+import {
+ faDollarSign,
+ faSeedling,
+ faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons";
 import "./App.css";
 
 const App = () => {
- const [money, setMoney] = useState(50);
- const [environment, setEnvironment] = useState(50);
+ const [money, setMoney] = useState(60);
+ const [environment, setEnvironment] = useState(60);
  const [currentStep, setCurrentStep] = useState(0);
+ const [showExp, setShowExp] = useState(false);
+ const [expText, setExpText] = useState("");
+ const [progress, setProgress] = useState(0);
+ const [intervalId, setIntervalId] = useState(null);
 
  const scens = [
   {
@@ -22,6 +30,10 @@ const App = () => {
    rM2: -10,
    next1: 2,
    next2: 2,
+   exp1:
+    "You proceed with the expansion of the data centers. The company has more computational power, and you can scale your models to meet demand. However, the increased energy consumption will lead to higher carbon emissions, and the company’s environmental footprint will grow significantly. Additionally, you risk attracting negative publicity from environmental groups and activists.",
+   exp2:
+    "You delay the expansion of the data centers and invest heavily in transitioning to renewable energy sources, such as solar or wind, to power your existing infrastructure. While this might be more expensive in the short term, it will significantly reduce your carbon footprint over time and align the company with sustainability goals. However, this decision will delay product rollouts and potentially lose you some market share.",
   },
   {
    id: 2,
@@ -36,6 +48,12 @@ const App = () => {
    rM2: -10,
    next1: 3,
    next2: 3,
+   exp1:
+    "You partner with established third-party providers who have highly efficient systems for collecting, processing, and storing data. These systems are state-of-the-art, but their data centers still rely on traditional power grids, which are mostly fueled by fossil energy. You get access to high-quality datasets quickly, but the environmental impact of sourcing these datasets is considerable.",
+   exp2:
+    "You build your own dataset infrastructure in-house, focusing on sustainable and eco-friendly practices. This requires significant upfront investment in green technologies, like energy-efficient servers and carbon-neutral cloud solutions. It will take longer to gather the necessary data, but you will have greater control over the sustainability of your operations.",
+   link:
+    "https://innodata.com/how-do-you-source-training-data-for-generative-ai/",
   },
   {
    id: 3,
@@ -50,6 +68,12 @@ const App = () => {
    rM2: -5,
    next1: 4,
    next2: 4,
+   exp1:
+    "You go for maximum performance and accuracy, accepting the increased energy usage and environmental cost. The AI model will be highly accurate, but the environmental toll will be severe, as the training will require large-scale, energy-hungry computational operations. You'll also face criticism from environmental watchdogs for prioritizing performance over sustainability",
+   exp2:
+    "You optimize the model to reduce energy consumption, accepting a slight trade-off in performance. The model will require fewer computational resources, lowering your environmental impact. However, the slightly reduced performance might affect your market position, as customers may demand the most powerful models available.",
+   link:
+    "https://news.engin.umich.edu/2024/11/up-to-30-of-the-power-used-to-train-ai-is-wasted-heres-how-to-fix-it/",
   },
   {
    id: 4,
@@ -64,6 +88,10 @@ const App = () => {
    rM2: -10,
    next1: 5,
    next2: 5,
+   exp1:
+    "You purchase hardware from well-established suppliers that offer lower costs, but their manufacturing processes are energy-intensive and have a significant environmental impact. This allows you to keep costs down in the short term, but it contributes to resource depletion and environmental damage.",
+   exp2:
+    "You source materials from manufacturers who prioritize sustainable practices, such as using recycled components or running their factories on renewable energy. While this increases upfront costs, it aligns your company with eco-friendly values and supports a greener supply chain.",
   },
   {
    id: 5,
@@ -78,6 +106,10 @@ const App = () => {
    rM2: -10,
    next1: 6,
    next2: 7,
+   exp1:
+    "You release a series of ads across social media platforms to rehabilitate your company’s image and entice new users. The ads get mixed reviews; some think the ads are shallow if not paired with action and others are happy to see a large company addressing environmental issues at all, but ultimately the initial upset has cooled down.",
+   exp2:
+    "Environmentalists across social media are further upset by your company’s lack of response and care for the environment and advocate for government regulations, concerning your shareholders.",
   },
   {
    id: 6,
@@ -92,6 +124,10 @@ const App = () => {
    rM2: 5,
    next1: 9,
    next2: 8,
+   exp1:
+    "You publicly acknowledged the energy problems present in AI. This has forced several companies to announce their intention to reduce their environmental impact. Your company is perceived as a leader in sustainability.",
+   exp2:
+    "You dismiss the environmental concerns and other companies at the conference feel comfortable doing the same.",
   },
   {
    id: 7,
@@ -106,6 +142,12 @@ const App = () => {
    rM2: 0,
    next1: 9,
    next2: 10,
+   exp1:
+    "Partnering with Tesla has given your company access to lots of new resources. Unfortunately, your association with Musk has led to upset among consumers.",
+   exp2:
+    "You do not pair up with Elon Musk, citing the fact that he does not align with your company’s values. You regret the lack of resources but customers respect your company.",
+   link:
+    "https://www.forbes.com/sites/steveandriole/2023/11/15/chatbot-customer-service-not-the-way-comcastxfinity--or-most-companies--do-it/",
   },
   {
    id: 8,
@@ -120,6 +162,11 @@ const App = () => {
    rM2: -5,
    next1: 10,
    next2: 10,
+   exp1:
+    "You develop a chatbot to guide users through your company’s website. Unfortunately, it was not received well by customers. Users report being confused by the chatbot and annoyed by its presence.",
+   exp2:
+    "You do not utilize chat bots as a tool to help customers, saving time, money, and energy.",
+   link: "https://prospect.org/power/2024-06-17-elon-musk-decline-of-tesla/",
   },
   {
    id: 9,
@@ -134,6 +181,12 @@ const App = () => {
    rM2: -10,
    next1: 10,
    next2: 10,
+   exp1:
+    "You purchase carbon credits to offset the company’s emissions. While this does provide a “green” image and supports projects that help reduce global emissions, it does not directly reduce your company’s own energy consumption or waste.",
+   exp2:
+    "You invest in reducing the company’s direct emissions by upgrading office buildings to more energy-efficient standards, transitioning to renewable energy for your data centers, and encouraging a remote work model. This approach has a longer-term impact but requires more effort and investment.",
+   link:
+    "https://interactive.carbonbrief.org/carbon-offsets-2023/companies.html",
   },
   {
    id: 10,
@@ -148,6 +201,11 @@ const App = () => {
    rM2: -5,
    next1: 11,
    next2: 11,
+   exp1:
+    "You keep the company's culture centered on frequent in-person meetings and travel. This helps build team cohesion and innovation, but it leads to a higher carbon footprint due to frequent business travel and commuting.",
+   exp2:
+    "You opt to embrace a more flexible, remote-first work environment, cutting back on business travel to reduce your environmental footprint. While you’ll save on travel costs and reduce emissions, there may be challenges in maintaining company culture and collaboration.",
+   link: "https://www.bls.gov/opub/btn/volume-13/remote-work-productivity.htm",
   },
   {
    id: 11,
@@ -162,6 +220,12 @@ const App = () => {
    rM2: -10,
    next1: 12,
    next2: 17,
+   exp1:
+    "You decide to keep the design team. You continue paying them which is costly but they appreciate that you opted for human made work and produce some really innovative designs, prompting new customers to give our product a try",
+   exp2:
+    "You lay off the design team and get to work training your new AI to do their jobs. You find training the AI to your specifications to be a lot more energy intensive and costly than you had planned. Some consumers spot extra fingers in your design and start a hashtag to boycott your company for giving human jobs to AI.",
+   link:
+    "https://www.businessinsider.com/chinese-company-to-replace-some-copywriters-graphic-designers-ai-report-2023-4",
   },
   {
    id: 12,
@@ -176,6 +240,12 @@ const App = () => {
    rM2: 20,
    next1: 13,
    next2: 14,
+   exp1:
+    "You keep the model exclusive and accessible only to high-value clients (e.g., large corporations, wealthy nations), who can afford to pay for the computational resources required to use it. This choice maximizes profits but limits the global accessibility and potential benefits of the AI model.",
+   exp2:
+    "You make the model available to a broader range of users, including smaller businesses and organizations in developing nations, potentially improving global access to AI-driven innovations. However, this decision would increase the computational load and environmental impact, as more clients will be using the model.",
+   link:
+    "https://hbr.org/2018/01/what-changes-when-ai-is-so-accessible-that-everyone-can-use-it",
   },
   {
    id: 13,
@@ -190,6 +260,12 @@ const App = () => {
    rM2: 5,
    next1: 16,
    next2: 18,
+   exp1:
+    "You invest heavily in developing the AI tool, even though it's risky and costly. The potential environmental benefits are enormous, and this project could position your company as a leader in AI for sustainability. However, you are aware that the financial returns may take a long time to materialize, and there’s a chance the tool won’t work as intended.",
+   exp2:
+    "You put the climate-focused AI project on hold, focusing instead on more lucrative applications of AI in industries such as finance, healthcare, or retail. While this decision might bring in more money in the short term, it does little to address the global environmental crisis.",
+   link:
+    "https://www.bcg.com/publications/2024/ceos-achieving-ai-and-climate-goals?&utm_source=search&utm_medium=cpc&utm_campaign=climate&utm_description=paid&utm_topic=climate_sustainability&utm_geo=global&utm_content=search_climate_dsa_&gad_source=1&gclid=Cj0KCQiAr7C6BhDRARIsAOUKifj7uXjf4mAw88EBL8fSawD5WQ42CqkkPjIizne_zjuIX3Oi3JCmyHwaAhkTEALw_wcB&gclsrc=aw.ds",
   },
   {
    id: 14,
@@ -204,6 +280,10 @@ const App = () => {
    rM2: 10,
    next1: 20,
    next2: 18,
+   exp1:
+    "You direct your company’s resources toward creating AI systems for predicting natural disaster patterns, optimizing food distribution, and aiding in clean-up efforts. Your actions save millions of lives and earn global praise, but the company’s financial standing takes a severe hit. You may need to downsize in the coming years.",
+   exp2:
+    "You design AI-driven solutions exclusively for wealthy individuals and corporations, building profitable eco-bunkers and personalized disaster preparedness tools. Your company remains financially strong, but the public accuses you of abandoning societal responsibility in humanity's darkest hour.",
   },
   {
    id: 15,
@@ -218,6 +298,10 @@ const App = () => {
    rM2: 10,
    next1: 19,
    next2: 18,
+   exp1:
+    "The infusion of capital saves the company from bankruptcy, but the investor repurposes your AI technology for surveillance and weaponization. Public trust in your company plummets, and employee morale is at an all-time low. However, financial stability gives you time to plan your next move.",
+   exp2:
+    "You implement widespread layoffs and discontinue several projects to save costs. The company survives but at great cost to your employees and reputation. While leaner, your company now has the agility to rebuild, but you'll need to address growing discontent internally and externally.",
   },
   {
    id: 16,
@@ -232,6 +316,10 @@ const App = () => {
    rM2: -15,
    next1: 20,
    next2: 20,
+   exp1:
+    "You allocate significant funds to create cutting-edge AI that further reduces waste and improves energy efficiency across industries. While expensive, your company strengthens its position as a global leader in sustainable technology, inspiring loyalty among eco-conscious consumers.",
+   exp2:
+    "You invest in lobbying efforts to pressure governments into adopting stricter environmental regulations. Your rivals are forced to comply, leveling the playing field. However, this sparks public backlash from those opposing increased government intervention and reduces your immediate market presence.",
   },
   {
    id: 17,
@@ -246,11 +334,16 @@ const App = () => {
    rM2: 20,
    next1: 18,
    next2: 15,
+   exp1:
+    "You pause expansion plans and invest heavily in renewable energy, energy-efficient algorithms, and sustainable sourcing for rare earth materials. While this reduces your company's short-term profitability and market share, it significantly decreases environmental harm and boosts public trust. Your reputation as a leader in ethical AI grows, but competitors may take advantage of your slower growth.",
+   exp2:
+    "You continue expanding at breakneck speed, ignoring environmental activists and relying on fossil fuels and intensive mining to meet energy demands. While this cements your position as the most powerful AI company in the world, ecosystems collapse further, and global warming accelerates. Governments and NGOs begin to push for sanctions and stricter environmental regulations, threatening long-term stability. Public opinion turns against you, branding your company a primary contributor to environmental devastation.",
   },
   {
    id: 18,
    title: "NEUTRAL ENDING",
-   prompt: "",
+   prompt:
+    "Your company has achieved a degree of success, but it hasn’t come without compromise. In an effort to balance financial growth with environmental responsibility, you've made some tough decisions. While you've avoided catastrophic damage to the environment, you couldn't always prioritize sustainability over profits. The environment remains somewhat stable, but there are still areas where it could have been better. In the end, you’ve achieved a balance, though one that may have left some room for improvement.",
    c1: "",
    rE: 0,
    rM: 0,
@@ -263,7 +356,8 @@ const App = () => {
   {
    id: 19,
    title: "ENVIRONMENTAL COLLAPSE",
-   prompt: "",
+   prompt:
+    "Your relentless pursuit of profit has led to catastrophic consequences. The decisions you made to maximize short-term financial gain have stripped the Earth of its resources. Air quality has plummeted, water sources have been depleted, and entire ecosystems are now on the brink of collapse. While your company has seen huge financial returns in the short term, the long-term cost to the planet is undeniable. The future of the planet is uncertain, and your company's success has come at a grave price.",
    c1: "",
    rE: 0,
    rM: 0,
@@ -276,7 +370,8 @@ const App = () => {
   {
    id: 20,
    title: "ENVIRONMENT THRIVES",
-   prompt: "",
+   prompt:
+    "Through careful planning and a commitment to sustainable practices, your company has led the way in environmental protection. By prioritizing renewable energy, reducing waste, and adopting green technologies, you've not only built a profitable business but also contributed to the health of the planet. The environment is flourishing, biodiversity is rebounding, and your company's efforts have inspired others to follow suit. Your vision has created a legacy of sustainability for generations to come.",
    c1: "",
    rE: 0,
    rM: 0,
@@ -289,7 +384,8 @@ const App = () => {
   {
    id: 21,
    title: "COMPANY SHUT DOWN",
-   prompt: "",
+   prompt:
+    "In your unwavering commitment to preserving the environment, you have bankrupted your company. By choosing to allocate resources towards green initiatives, your company's finances have taken a severe hit. The decision to invest in the environment at the cost of profit was noble, but ultimately unsustainable. With no funds left to continue operations, your company has shut down. Though the Earth remains better off, your company's legacy is one of financial ruin. The harsh reality is that while the planet may thrive, a company can't survive without a solid financial foundation.",
    c1: "",
    rE: 0,
    rM: 0,
@@ -302,29 +398,80 @@ const App = () => {
  ];
 
  const handleChoice = (choice) => {
+  let newMoney = money;
+  let newEnvironment = environment;
+  let nextStep = currentStep;
   if (choice === "option1") {
    // c1, rE, rM, next1
-   setMoney(money + scens[currentStep - 1].rM);
-   setEnvironment(environment + scens[currentStep - 1].rE);
-   setCurrentStep(scens[currentStep - 1].next1);
+   newMoney += scens[currentStep - 1].rM;
+   newEnvironment += scens[currentStep - 1].rE;
+   nextStep = scens[currentStep - 1].next1;
+   setExpText(scens[currentStep - 1].exp1);
   } else if (choice === "option2") {
    // c2, rE2, rM2, next2
-   setMoney(money + scens[currentStep - 1].rM2);
-   setEnvironment(environment + scens[currentStep - 1].rE2);
-   setCurrentStep(scens[currentStep - 1].next2);
+   newMoney += scens[currentStep - 1].rM2;
+   newEnvironment += scens[currentStep - 1].rE2;
+   nextStep = scens[currentStep - 1].next2;
+   setExpText(scens[currentStep - 1].exp2);
   }
+  setMoney(newMoney);
+  setEnvironment(newEnvironment);
+  setShowExp(true);
+  setProgress(0);
+
+  setTimeout(() => {
+   setShowExp(false);
+   setCurrentStep(nextStep);
+  }, 12000);
+
   if (environment <= 0) {
    setCurrentStep(19);
   } else if (money <= 0) {
    setCurrentStep(21);
   }
+
+  const id = setInterval(() => {
+   setProgress((prev) => {
+    if (prev >= 100) {
+     clearInterval(id);
+     setShowExp(false);
+     setCurrentStep(nextStep);
+     return 100;
+    }
+    return prev + 0.8;
+   });
+  }, 100);
+
+  setIntervalId(id);
  };
  const restartGame = () => {
   setMoney(50);
   setEnvironment(50);
   setCurrentStep(0);
+  setShowExp(false);
+  setExpText("");
+  setProgress(0);
+  if (intervalId) clearInterval(intervalId);
  };
  const renderGameStep = () => {
+  if (showExp) {
+   return (
+    <div className="p-5">
+     <h4 className="pixelify-sans-head">Impact of Your Decision...</h4>
+     <p className="exp">{expText}</p>
+     <div className="progress my-1 mx-4 timer-out">
+      <div
+       className="progress-bar progress-bar-animated timer"
+       role="progressbar"
+       style={{ width: `${progress}%` }}
+       aria-valuenow={progress}
+       aria-valuemin="0"
+       aria-valuemax="100"
+      ></div>
+     </div>
+    </div>
+   );
+  }
   switch (currentStep) {
    case 0:
     return (
@@ -367,20 +514,78 @@ const App = () => {
       <button className="btn button" onClick={() => handleChoice("option2")}>
        {scens[currentStep - 1].c2}
       </button>
+      {/* link to more info... real world connection*/}
+      <br />
+      {scens[currentStep - 1].link ? (
+       <a href={scens[currentStep - 1].link} target="_blank">
+        <button className="btn button article">
+         <FontAwesomeIcon
+          className="article pr"
+          fade
+          icon={faMagnifyingGlass}
+         />
+         Read more
+        </button>
+       </a>
+      ) : (
+       <div />
+      )}
      </div>
     );
    case 18:
-   case 19:
-   case 20:
-   case 21:
     return (
-     <div className="p-5">
+     <div className="bg bg-neu p-5">
       <h3 className="pixelify-sans-head">Game Over!</h3>
       <h3 className="pixelify-sans-head color">
        {scens[currentStep - 1].title}
       </h3>
       <br />
-      <p>blah blah blah</p>
+      <p>{scens[currentStep - 1].prompt}</p>
+
+      <button className="btn  button" onClick={restartGame}>
+       Restart
+      </button>
+     </div>
+    );
+   case 19:
+    return (
+     <div className="bg bg-col p-5">
+      <h3 className="pixelify-sans-head">Game Over!</h3>
+      <h3 className="pixelify-sans-head color">
+       {scens[currentStep - 1].title}
+      </h3>
+      <br />
+      <p>{scens[currentStep - 1].prompt}</p>
+
+      <button className="btn  button" onClick={restartGame}>
+       Restart
+      </button>
+     </div>
+    );
+   case 20:
+    return (
+     <div className="bg bg-env p-5">
+      <h3 className="pixelify-sans-head">Game Over!</h3>
+      <h3 className="pixelify-sans-head color">
+       {scens[currentStep - 1].title}
+      </h3>
+      <br />
+      <p>{scens[currentStep - 1].prompt}</p>
+
+      <button className="btn  button" onClick={restartGame}>
+       Restart
+      </button>
+     </div>
+    );
+   case 21:
+    return (
+     <div className="bg bg-ban p-5">
+      <h3 className="pixelify-sans-head">Game Over!</h3>
+      <h3 className="pixelify-sans-head color">
+       {scens[currentStep - 1].title}
+      </h3>
+      <br />
+      <p>{scens[currentStep - 1].prompt}</p>
 
       <button className="btn  button" onClick={restartGame}>
        Restart

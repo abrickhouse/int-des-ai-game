@@ -24,6 +24,7 @@ body {
 
 .p .App {
  text-align: center;
+ transition: opacity 0.2s ease;
 }
 
 .container {
@@ -71,4 +72,58 @@ body {
 }
 .color {
  color: #7ab678;
+}
+.exp {
+ transition: opacity 0.2s ease;
+}
+
+.timer-out {
+ background-color: #2a2a2a;
+ border-color: #fff;
+ height: 20px;
+}
+
+.timer {
+ background-color: #e4e4e4;
+ opacity: 30%;
+ height: 20px;
+}
+.article {
+ color: #c3e7b8;
+ background-color: #3a3a3a;
+ transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.article:hover {
+ color: #c3e7b8;
+ background-color: rgb(75, 75, 75);
+ transition: background-color 0.2s ease, transform 0.2s ease;
+ transform: scale(1.02);
+}
+.pr {
+ padding-right: 10px;
+ --fa-fade-opacity: 1;
+}
+.article:hover .pr {
+ padding-right: 10px;
+ --fa-animation-duration: 1s;
+ --fa-fade-opacity: 0.4;
+}
+.bg {
+ height: 100%;
+ background-position: center;
+ background-repeat: no-repeat;
+ background-size: cover;
+ border-radius: 50px;
+}
+.bg-neu {
+ background-image: url("./neu.jpeg");
+}
+.bg-col {
+ background-image: url("./bad.jpeg");
+}
+.bg-env {
+ background-image: url("./success.jpeg");
+}
+.bg-ban {
+ background-image: url("./bank.jpeg");
 }
