@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
  faDollarSign,
@@ -11,14 +11,17 @@ const App = () => {
  const [money, setMoney] = useState(60);
  const [environment, setEnvironment] = useState(60);
  const [currentStep, setCurrentStep] = useState(0);
+ const [nextStep, setNextStep] = useState(0);
  const [showExp, setShowExp] = useState(false);
  const [expText, setExpText] = useState("");
  const [progress, setProgress] = useState(0);
- const [intervalId, setIntervalId] = useState(null);
+ const [isDisabled, setIsDisabled] = useState(true);
+ const [progressYear, setProgressYear] = useState(0); // 0(start), 1(1), 2(5), 3(10), 4(50), 5(done)
 
  const scens = [
   {
    id: 1,
+   year: 1,
    title: "Data Centers",
    prompt:
     "Your AI company has been growing rapidly, and clients are demanding more powerful machine learning models. To meet this demand, you're considering expanding your data center infrastructure. This would involve building new data centers that consume significant amounts of energy and contribute to carbon emissions, particularly if the energy comes from fossil fuels. The company is also facing pressure to keep operational costs low and maintain a competitive edge.",
@@ -37,6 +40,7 @@ const App = () => {
   },
   {
    id: 2,
+   year: 1,
    title: "Data Sourcing",
    prompt:
     "Your company is developing a new AI model that will require vast amounts of data to train. To improve accuracy and capabilities, you need access to high-quality datasets, but many of these datasets are being sourced from cloud platforms or third-party providers that use significant resources in data collection, storage, and processing. There's a concern that continuing with these practices will further harm the environment through unnecessary energy consumption.",
@@ -57,6 +61,7 @@ const App = () => {
   },
   {
    id: 3,
+   year: 1,
    title: "AI Model Training Techniques",
    prompt:
     "Your company is about to begin training a large-scale deep learning model that will push the boundaries of artificial intelligence. This model requires immense computational resources, leading to high energy consumption and significant carbon emissions. One option is to optimize the model to use fewer resources (using techniques like pruning, quantization, or more efficient architectures), but this might result in slightly lower accuracy. Another option is to go for maximum performance, which will demand even more energy.",
@@ -77,6 +82,7 @@ const App = () => {
   },
   {
    id: 4,
+   year: 1,
    title: "Supply Chain and Raw Material Sourcing",
    prompt:
     "Your AI company relies on advanced hardware—such as specialized GPUs and other semiconductor components—to run your AI models. These materials require mining and manufacturing processes that are resource-intensive and often harmful to the environment. You are now faced with a choice of whether to source your hardware from companies with questionable environmental practices or invest in alternatives that are more sustainable but may be more expensive.",
@@ -95,6 +101,7 @@ const App = () => {
   },
   {
    id: 5,
+   year: 5,
    title: "Advertising",
    prompt:
     "The criticism that the company is getting online from environmental activists is concerning your investors. An employee suggests putting out an advertising campaign to rehabilitate the company’s image, but this will cost a lot of money. Do you create an ad campaign to assuage consumer concerns?",
@@ -113,6 +120,7 @@ const App = () => {
   },
   {
    id: 6,
+   year: 5,
    title: "Tech Conference",
    prompt:
     "As the usage of AI within big tech corporations increase, you have been asked to speak at the Leaders in Tech Conference about the future of AI and business. Shareholders have polarizing opinions on how important the company’s ESG report is and want to know your stance on AI’s prolonged environmental impact.",
@@ -131,6 +139,7 @@ const App = () => {
   },
   {
    id: 7,
+   year: 5,
    title: "Chatbots",
    prompt:
     "You’ve seen other websites use chatbots to help customers navigate their websites. Do you choose to add a chatbot to your company’s website?",
@@ -151,6 +160,7 @@ const App = () => {
   },
   {
    id: 8,
+   year: 5,
    title: "New Friends",
    prompt:
     "After debunking claims related to AI’s environmental impact at the Leaders in Tech Conference, Tesla’s CEO Elon Musk has taken an interest in your company. Tesla is one of the biggest tech companies and a relationship like this could boost profit. Do you decide to partner your company with Tesla? Be mindful how connections to a controversial CEO might conflict with your brand.",
@@ -170,6 +180,7 @@ const App = () => {
   },
   {
    id: 9,
+   year: 5,
    title: "Carbon Offsetting vs. Reducing Emissions",
    prompt:
     "Your company is exploring options for reducing its environmental impact, especially in terms of carbon emissions. Carbon offsetting (e.g., investing in tree planting or renewable energy projects) is one option to mitigate the environmental harm from your operations. However, there are also internal practices you could implement to directly reduce your own emissions, such as energy efficiency improvements or reducing office space.",
@@ -190,6 +201,7 @@ const App = () => {
   },
   {
    id: 10,
+   year: 5,
    title: "Employee Travel and Remote Work",
    prompt:
     "As the CEO of an AI company, you know that employee travel—particularly flights for conferences, meetings, or sales visits—can contribute significantly to your carbon footprint. Many of your employees have expressed that they prefer working remotely, which could reduce the need for travel, but your business model is built on frequent in-person interactions to foster innovation and collaboration. You're now considering whether to limit travel or continue with the traditional model.",
@@ -209,6 +221,7 @@ const App = () => {
   },
   {
    id: 11,
+   year: 10,
    title: "Designers",
    prompt:
     "You’re contemplating joining in on the trend of using AI to design your company’s graphics. The company’s current design team of 3 employees produces content a week slower than AI could and they require an annual salary of $60,000. You can keep your current design team at higher cost or try out using AI to drive your design.",
@@ -229,6 +242,7 @@ const App = () => {
   },
   {
    id: 12,
+   year: 10,
    title: "AI Model Accessibility and Environmental Justice",
    prompt:
     "Your AI company has developed a highly advanced model that can be used in various sectors, from healthcare to finance. However, the resources required to train and deploy such a model are enormous, and the cost of accessing it is likely to put it out of reach for smaller organizations or those in developing countries. You have the opportunity to make the model accessible to a wider range of users, but doing so may increase your environmental impact.",
@@ -249,6 +263,7 @@ const App = () => {
   },
   {
    id: 13,
+   year: 10,
    title: "AI for Climate Change Solutions",
    prompt:
     "Your company has the opportunity to develop a groundbreaking AI tool that could help governments and organizations predict and mitigate the impacts of climate change, such as flooding, droughts, or extreme weather events. However, this project is not very profitable in the short term, and it's a large-scale investment. There’s also the risk that the AI model may not deliver the expected results, leaving your company financially vulnerable.",
@@ -269,11 +284,12 @@ const App = () => {
   },
   {
    id: 14,
+   year: 50,
    title: "Environmental Disaster",
    prompt:
     "A catastrophic environmental disaster has struck, leaving major parts of the world uninhabitable due to rising sea levels and toxic air pollution. Your company’s AI technologies are among the most advanced tools available to assist with relief and mitigation efforts, but deploying them at scale would drain the company's financial reserves. Alternatively, you could leverage your tech to create luxury havens for the wealthy, ensuring profit but limiting who you help.",
    c1: "Deploy AI for Global Relief Efforts",
-   rE: 10,
+   rE: 45,
    rM: -20,
    c2: "Focus on Luxury Solutions for Profit",
    rE2: -5,
@@ -287,6 +303,7 @@ const App = () => {
   },
   {
    id: 15,
+   year: 50,
    title: "Bankruptcy",
    prompt:
     "Years of rapid expansion and cutthroat competition have drained your company’s finances. You're on the verge of bankruptcy unless you take drastic action. A venture capitalist offers a lifeline but demands full control over your R&D pipeline, potentially diverting your tech into controversial or unethical applications. Alternatively, you could attempt an unprecedented company-wide restructuring, cutting jobs and reducing services.",
@@ -302,18 +319,21 @@ const App = () => {
     "The infusion of capital saves the company from bankruptcy, but the investor repurposes your AI technology for surveillance and weaponization. Public trust in your company plummets, and employee morale is at an all-time low. However, financial stability gives you time to plan your next move.",
    exp2:
     "You implement widespread layoffs and discontinue several projects to save costs. The company survives but at great cost to your employees and reputation. While leaner, your company now has the agility to rebuild, but you'll need to address growing discontent internally and externally.",
+   link:
+    "https://www.washingtonpost.com/technology/2024/11/08/anthropic-meta-pentagon-military-openai/",
   },
   {
    id: 16,
+   year: 50,
    title: "Environmental Utopia",
    prompt:
     "Decades of investment in sustainable AI applications have transformed the world into a near-utopia, with green energy and conservation at the forefront. Your company has been a key player in this transformation, but rivals are beginning to undermine your market share by offering cheap, less eco-conscious solutions. Do you double down on innovation or spend resources lobbying governments to enforce eco-friendly practices globally?",
    c1: "Invest in Green Innovation",
-   rE: 5,
-   rM: -10,
+   rE: 20,
+   rM: -5,
    c2: "Lobby for Government Regulations",
-   rE2: 10,
-   rM2: -15,
+   rE2: 30,
+   rM2: -10,
    next1: 20,
    next2: 20,
    exp1:
@@ -323,6 +343,7 @@ const App = () => {
   },
   {
    id: 17,
+   year: 50,
    title: "Machines Replacing Humans",
    prompt:
     "Automation has taken over nearly all industries, leading to unprecedented economic efficiency but at a devastating environmental cost. The energy demands of running fully automated systems, powered by your AI technology, have escalated to unsustainable levels. Forests are being cleared to make way for data centers, and rare earth mining has destroyed ecosystems. Activists demand that your company scale back its operations and invest in eco-friendly infrastructure, but doing so would jeopardize your dominance in the AI industry. Alternatively, you could double down on current practices to maintain market supremacy, betting on future technological breakthroughs to solve the crisis.",
@@ -330,7 +351,7 @@ const App = () => {
    rE: 5,
    rM: -15,
    c2: "Double Down on Expansion and Automation",
-   rE2: -10,
+   rE2: -15,
    rM2: 20,
    next1: 18,
    next2: 15,
@@ -396,8 +417,33 @@ const App = () => {
    next2: 21,
   },
  ];
+ useEffect(() => {
+  if (isDisabled) {
+   const interval = setInterval(() => {
+    setProgress((prevProgress) => {
+     if (prevProgress < 100) {
+      return prevProgress + 1;
+     }
+     clearInterval(interval);
+     setIsDisabled(false);
+     return 100;
+    });
+   }, 80);
+
+   return () => clearInterval(interval);
+  }
+ }, [isDisabled]);
 
  const handleChoice = (choice) => {
+  if (environment <= 0) {
+   setCurrentStep(19);
+   setEnvironment(0);
+   setProgressYear(5);
+  } else if (money <= 0) {
+   setMoney(0);
+   setCurrentStep(21);
+   setProgressYear(5);
+  }
   let newMoney = money;
   let newEnvironment = environment;
   let nextStep = currentStep;
@@ -416,42 +462,49 @@ const App = () => {
   }
   setMoney(newMoney);
   setEnvironment(newEnvironment);
-  setShowExp(true);
-  setProgress(0);
-
-  setTimeout(() => {
-   setShowExp(false);
-   setCurrentStep(nextStep);
-  }, 12000);
-
   if (environment <= 0) {
    setCurrentStep(19);
+   setEnvironment(0);
+   setProgressYear(5);
   } else if (money <= 0) {
+   setMoney(0);
    setCurrentStep(21);
+   setProgressYear(5);
+  } else {
+   setShowExp(true);
+   setNextStep(nextStep);
+   if (nextStep > 1 && nextStep < 5) {
+    setProgressYear(1);
+   } else if (nextStep < 11) {
+    setProgressYear(2);
+   } else if (nextStep < 14) {
+    setProgressYear(3);
+   } else if (nextStep >= 14) {
+    setProgressYear(4);
+   }
+   setIsDisabled(true);
   }
-
-  const id = setInterval(() => {
-   setProgress((prev) => {
-    if (prev >= 100) {
-     clearInterval(id);
-     setShowExp(false);
-     setCurrentStep(nextStep);
-     return 100;
-    }
-    return prev + 0.8;
-   });
-  }, 100);
-
-  setIntervalId(id);
  };
+ const handleClick = () => {
+  setProgress(0);
+  setShowExp(false);
+  setCurrentStep(nextStep);
+ };
+ const handleBegin = () => {
+  setProgress(0);
+  setCurrentStep(1);
+  setProgressYear(1);
+ };
+
  const restartGame = () => {
-  setMoney(50);
-  setEnvironment(50);
+  setMoney(60);
+  setEnvironment(60);
   setCurrentStep(0);
   setShowExp(false);
   setExpText("");
   setProgress(0);
-  if (intervalId) clearInterval(intervalId);
+  setIsDisabled(true);
+  setProgressYear(0);
  };
  const renderGameStep = () => {
   if (showExp) {
@@ -459,16 +512,33 @@ const App = () => {
     <div className="p-5">
      <h4 className="pixelify-sans-head">Impact of Your Decision...</h4>
      <p className="exp">{expText}</p>
-     <div className="progress my-1 mx-4 timer-out">
+     <button
+      onClick={handleClick}
+      disabled={isDisabled}
+      style={{
+       backgroundColor: isDisabled ? "#323232" : `#c3e7b8`,
+       color: "#000",
+       position: "relative",
+       transition: "background-color 0.3s ease",
+      }}
+      className="btn button"
+     >
+      Continue
       <div
-       className="progress-bar progress-bar-animated timer"
-       role="progressbar"
-       style={{ width: `${progress}%` }}
-       aria-valuenow={progress}
-       aria-valuemin="0"
-       aria-valuemax="100"
-      ></div>
-     </div>
+       style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        height: "100%",
+        width: `${progress}%`,
+        backgroundColor: "#c3e7b8",
+        padding: "10px 20px",
+        borderRadius: "25px",
+        transition: "width 0.08s",
+        opacity: "50%",
+       }}
+      />
+     </button>
     </div>
    );
   }
@@ -482,7 +552,8 @@ const App = () => {
        guide our company into the future, but there are a few details we need
        you to settle first...
       </p>
-      <button className="btn button" onClick={() => setCurrentStep(1)}>
+      <p>Guide your company towards success!</p>
+      <button className="btn button" onClick={handleBegin}>
        Begin
       </button>
      </div>
@@ -507,7 +578,14 @@ const App = () => {
     return (
      <div className="p-5">
       <h4 className="pixelify-sans-head">{scens[currentStep - 1].title}</h4>
-      <p>{scens[currentStep - 1].prompt}</p>
+      <p>
+       {scens[currentStep - 1].year ? (
+        <p>YEAR {scens[currentStep - 1].year}: </p>
+       ) : (
+        <div />
+       )}
+       {scens[currentStep - 1].prompt}
+      </p>
       <button className="btn button" onClick={() => handleChoice("option1")}>
        {scens[currentStep - 1].c1}
       </button>
@@ -607,6 +685,16 @@ const App = () => {
 
  return (
   <div className="my-4 px-5">
+   <div className="year-out progress my-5 mx-4">
+    <div
+     className="year progress-bar progress-bar-animated"
+     role="progressbar"
+     style={{ width: `${progressYear * 20}%` }}
+     aria-valuenow={progressYear * 20}
+     aria-valuemin="0"
+     aria-valuemax="100"
+    ></div>
+   </div>
    {renderGameStep()}
    <br />
    <FontAwesomeIcon

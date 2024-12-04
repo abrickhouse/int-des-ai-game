@@ -63,9 +63,26 @@ body {
 
 .progress-bar {
  font-size: 1.25rem;
+ line-height: 10px;
+ border-radius: 16px;
+ margin-left: 2px;
+ z-index: 0;
+}
+.year-out {
+ height: 10px;
+ max-width: 100%;
+
+ z-index: 0;
+ position: relative;
+ bottom: 50;
+ background-color: #393939;
+}
+.year {
+ font-size: 1.25rem;
  line-height: 30px;
  border-radius: 15px;
  z-index: 0;
+ background-color: #c6c6c6;
 }
 .down {
  z-index: 20000;
